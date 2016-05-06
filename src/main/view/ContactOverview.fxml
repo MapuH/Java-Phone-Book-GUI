@@ -34,8 +34,8 @@
         </Menu>
         <Menu mnemonicParsing="false" text="Contacts">
           <items>
-            <MenuItem mnemonicParsing="false" text="Add contact..." />
-            <MenuItem mnemonicParsing="false" text="Edit contact..." />
+            <MenuItem mnemonicParsing="false" onAction="#handleNewContact" text="Add contact..." />
+            <MenuItem mnemonicParsing="false" onAction="#handleEditContact" text="Edit contact..." />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" onAction="#handleDeleteContact" text="Delete contact" />
           </items>
@@ -98,8 +98,8 @@
                         </GridPane>
                         <ButtonBar layoutX="56.0" layoutY="315.0" prefHeight="40.0" prefWidth="200.0">
                           <buttons>
-                            <Button mnemonicParsing="false" text="Add..." />
-                              <Button mnemonicParsing="false" text="Edit..." />
+                            <Button mnemonicParsing="false" onAction="#handleNewContact" text="Add..." />
+                              <Button mnemonicParsing="false" onAction="#handleEditContact" text="Edit..." />
                               <Button mnemonicParsing="false" onAction="#handleDeleteContact" text="Delete" />
                           </buttons>
                         </ButtonBar>

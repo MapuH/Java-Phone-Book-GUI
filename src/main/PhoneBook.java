@@ -1,6 +1,9 @@
 package main;
 
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
 import main.model.Contact;
+import main.view.ContactEditDialogController;
 import main.view.ContactOverviewController;
 import java.io.*;
 import java.util.regex.Matcher;
@@ -41,14 +44,14 @@ public class PhoneBook extends Application {
         return primaryStage;
     }
 
-    private void loadContacts(ObservableList<Contact> contacts){
+    private void loadContacts(ObservableList<Contact> contacts) {
         try(BufferedReader reader = new BufferedReader(new FileReader(getDataPath()))) {
 
-            Pattern pattern = Pattern.compile("^([^,\"]{2,50}),([0-9+, ]{3,30})?,([0-9+, ]{3,30})?,([0-9+, ]{3,30})?,([0-9+, ]{3,30})?$");
+            Pattern pattern = Pattern.compile("^([^,\"]{2,50}),([0-9+ ]{3,30})?,([0-9+ ]{3,30})?,([0-9+ ]{3,30})?,([0-9+ ]{3,30})?$");
 
-            while(true){
+            while (true) {
                 String line = reader.readLine();
-                if(line == null){
+                if (line == null) {
                     break;
                 }
 
@@ -97,6 +100,45 @@ public class PhoneBook extends Application {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Opens a dialog to edit details for the specified contact. If the user
+     * clicks OK, the changes are saved into the provided contact object and true
+     * is returned.
+     *
+     * @param contact the person object to be edited
+     * @return true if the user clicked OK, false otherwise.
+     */
+    public boolean showContactEditDialog(Contact contact) {
+        try {
+            // load the fxml file and create a new stage for the popup dialog
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(PhoneBook.class.getResource("view/ContactEditDialog.fxml"));
+            AnchorPane page = loader.load();
+
+            // create the dialog stage
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Add/Edit Contact");
+            dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+            Scene scene = new Scene(page);
+            dialogStage.setScene(scene);
+
+            // load the edit contact controller
+            ContactEditDialogController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setContact(contact);
+
+            // show dialog and wait till user takes action
+            dialogStage.showAndWait();
+
+            return controller.isOkClicked();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

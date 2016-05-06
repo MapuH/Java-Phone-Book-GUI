@@ -11,13 +11,8 @@ public class Contact {
     private StringProperty home;
     private StringProperty additional;
 
-    public Contact(String name) {
-        this.name = new SimpleStringProperty(name);
-    }
-
-    public Contact(String name, String mobile) {
-        this.name = new SimpleStringProperty(name);
-        this.mobile = new SimpleStringProperty(mobile);
+    public Contact() {
+        this(null, null, null, null, null);
     }
 
     public Contact(String name, String mobile, String work, String home, String additional) {

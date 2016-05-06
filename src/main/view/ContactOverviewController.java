@@ -10,11 +10,13 @@ import java.util.Optional;
 
 public class ContactOverviewController {
 
+    // left hand side
     @FXML
     private TableView<Contact> contactsTable;
     @FXML
     private TableColumn<Contact, String> nameColumn;
 
+    // right hand side
     @FXML
     private GridPane detailsGrid;
     @FXML
@@ -74,6 +76,49 @@ public class ContactOverviewController {
         }
     }
 
+    /**
+     * Called when the user clicks the new button. Opens a dialog to edit
+     * details for a new contact.
+     */
+    @FXML
+    private void handleNewContact() {
+        Contact tempContact = new Contact();
+        boolean clickedOK = phoneBook.showContactEditDialog(tempContact);
+        if (clickedOK) {
+            phoneBook.getContactsData().add(tempContact);
+            showContactDetails(tempContact);
+        }
+    }
+
+    /**
+     * Called when the user clicks the edit button. Opens a dialog to edit
+     * details for the selected contact.
+     */
+    @FXML
+    private void handleEditContact() {
+        Contact selectedContact = contactsTable.getSelectionModel().getSelectedItem();
+        if (selectedContact != null) {
+            boolean clickedOK = phoneBook.showContactEditDialog(selectedContact);
+            if (clickedOK) {
+                showContactDetails(selectedContact);
+            }
+
+        } else {
+            // if nothing is selected
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.initOwner(phoneBook.getPrimaryStage());
+            alert.setTitle("No Selection");
+            alert.setHeaderText("No Contact Selected");
+            alert.setContentText("Please select a contact from the table.");
+
+            alert.showAndWait();
+        }
+    }
+
+
+    /**
+     * Called when the user clicks the delete button.
+     */
     @FXML
     private void handleDeleteContact() {
         int selectedIndex = contactsTable.getSelectionModel().getSelectedIndex();
@@ -94,8 +139,8 @@ public class ContactOverviewController {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.initOwner(phoneBook.getPrimaryStage());
             alert.setTitle("No Selection");
-            alert.setHeaderText("No Person Selected");
-            alert.setContentText("Please select a person in the table.");
+            alert.setHeaderText("No Contact Selected");
+            alert.setContentText("Please select a contact from the table.");
 
             alert.showAndWait();
         }
