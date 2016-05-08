@@ -8,6 +8,8 @@ import main.PhoneBook;
 import main.model.Contact;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class ContactOverviewController {
@@ -35,6 +37,7 @@ public class ContactOverviewController {
     private Label instructionLabel;
 
     private PhoneBook phoneBook;
+    private String[] validExtensions = {"*.csv", "*.xml"};
 
     public ContactOverviewController() {
     }
@@ -165,15 +168,13 @@ public class ContactOverviewController {
         FileChooser fileChooser = new FileChooser();
 
         // set extension filter
-        FileChooser.ExtensionFilter exFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
+        FileChooser.ExtensionFilter exFilter = new FileChooser.ExtensionFilter("Supported files (*.csv, *.xml)", validExtensions);
         fileChooser.getExtensionFilters().add(exFilter);
 
         // show open file dialog
         File file = fileChooser.showOpenDialog(phoneBook.getPrimaryStage());
 
-        if (file != null) {
-            phoneBook.loadContactDataXML(file);
-        }
+        phoneBook.loadContactFile(file);
     }
 
     /**
@@ -182,9 +183,9 @@ public class ContactOverviewController {
      */
     @FXML
     private void handleSave() {
-        File contactFileXML = phoneBook.getContactFilePath();
-        if (contactFileXML != null) {
-            phoneBook.saveContactDataXML(contactFileXML);
+        File contactFile = phoneBook.getContactFilePath();
+        if (contactFile != null) {
+            phoneBook.saveContactFile(contactFile);
         } else {
             handleSaveAs();
         }
@@ -198,18 +199,14 @@ public class ContactOverviewController {
         FileChooser fileChooser = new FileChooser();
 
         // set extension filter
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Supported files (*.csv, *.xml)", validExtensions);
         fileChooser.getExtensionFilters().add(extFilter);
 
         // show save file dialog
         File file = fileChooser.showSaveDialog(phoneBook.getPrimaryStage());
 
         if (file != null) {
-            // check extension
-            if (!file.getPath().endsWith(".xml")) {
-                file = new File(file.getPath() + ".xml");
-            }
-            phoneBook.saveContactDataXML(file);
+            phoneBook.saveContactFile(file);
         }
     }
 

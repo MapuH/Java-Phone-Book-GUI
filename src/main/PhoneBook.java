@@ -1,5 +1,7 @@
 package main;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
@@ -10,8 +12,6 @@ import main.view.ContactEditDialogController;
 import main.view.ContactOverviewController;
 import java.io.*;
 import java.util.prefs.Preferences;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,22 +26,11 @@ import javax.xml.bind.Unmarshaller;
 
 public class PhoneBook extends Application {
 
-    private String dataPath;
     private Stage primaryStage;
     private VBox overview;
     private ObservableList<Contact> contactsData = FXCollections.observableArrayList();
 
     public PhoneBook() {
-        // setDataPath("resources/data/contacts.csv");
-        // loadContacts(contactsData);
-    }
-
-    public String getDataPath() {
-        return dataPath;
-    }
-
-    public void setDataPath(String dataPath) {
-        this.dataPath = dataPath;
     }
 
     public ObservableList<Contact> getContactsData() {
@@ -50,33 +39,6 @@ public class PhoneBook extends Application {
 
     public Stage getPrimaryStage() {
         return primaryStage;
-    }
-
-    private void loadContacts(ObservableList<Contact> contacts) {
-        try(BufferedReader reader = new BufferedReader(new FileReader(getDataPath()))) {
-
-            Pattern pattern = Pattern.compile("^([^,\"]{2,50}),([0-9+ ]{3,30})?,([0-9+ ]{3,30})?,([0-9+ ]{3,30})?,([0-9+ ]{3,30})?$");
-
-            while (true) {
-                String line = reader.readLine();
-                if (line == null) {
-                    break;
-                }
-
-                Matcher matcher = pattern.matcher(line);
-                if (matcher.find()) {
-                    String name = matcher.group(1);
-                    String mobile = matcher.group(2);
-                    String work = matcher.group(3);
-                    String home = matcher.group(4);
-                    String additional = matcher.group(5);
-                    contacts.add(new Contact(name, mobile, work, home, additional));
-                }
-            }
-
-        }catch (IOException ioex) {
-            ioex.printStackTrace();
-        }
     }
 
     public static void main(String[] args) {
@@ -115,10 +77,7 @@ public class PhoneBook extends Application {
 
         // try to load the last opened contacts file
         File file = getContactFilePath();
-        if (file != null) {
-            loadContactDataXML(file);
-        }
-
+        loadContactFile(file);
     }
 
     /**
@@ -199,12 +158,41 @@ public class PhoneBook extends Application {
     }
 
     /**
+     * Helper function for loading files.
+     *
+     * @param file
+     */
+    public void loadContactFile(File file) {
+        if (file != null) {
+            if (file.getName().endsWith(".xml")) {
+                loadContactDataXML(file);
+            } else if (file.getName().endsWith(".csv")) {
+                loadContactDataCSV(file);
+            }
+        }
+    }
+
+    /**
+     * Helper function for saving files.
+     *
+     * @param file
+     */
+    public void saveContactFile(File file) {
+        if (file.getName().endsWith(".xml")) {
+            saveContactDataXML(file);
+        } else if (file.getName().endsWith(".csv")) {
+            saveContactDataCSV(file);
+        }
+
+    }
+
+    /**
      * Loads contact data from the specified XML file. The current contact data will
      * be replaced.
      *
      * @param file
      */
-    public void loadContactDataXML(File file) {
+    private void loadContactDataXML(File file) {
         try {
             JAXBContext context = JAXBContext.newInstance(ContactListWrapperXML.class);
             Unmarshaller um = context.createUnmarshaller();
@@ -234,7 +222,7 @@ public class PhoneBook extends Application {
      *
      * @param file
      */
-    public void saveContactDataXML(File file) {
+    private void saveContactDataXML(File file) {
         try {
             JAXBContext context = JAXBContext.newInstance(ContactListWrapperXML.class);
             Marshaller m = context.createMarshaller();
@@ -260,4 +248,80 @@ public class PhoneBook extends Application {
             alert.showAndWait();
         }
     }
+
+    /**
+     * Loads contact data from the specified CSV file. The current contact data will
+     * be replaced.
+     *
+     * @param file
+     */
+    private void loadContactDataCSV(File file) {
+        try (CSVReader reader = new CSVReader(new FileReader(file), ',', '\"', 1)) {
+
+            contactsData.clear();
+            String[] contactEntry = reader.readNext();
+
+            while (contactEntry != null) {
+                String name = contactEntry[0];
+                String mobile = contactEntry[1];
+                String work = contactEntry[2];
+                String home = contactEntry[3];
+                String additional = contactEntry[4];
+                contactsData.add(new Contact(name, mobile, work, home, additional));
+
+                contactEntry = reader.readNext();
+            }
+
+            // save filepath to the registry
+            setContactFilePath(file);
+
+        } catch (Exception e) {
+            // catches any exception
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Could not load data");
+            alert.setContentText("Could not load data from file:\n" + file.getPath());
+
+            alert.showAndWait();
+        }
+    }
+
+    /**
+     * Saves the current contact data to the specified CSV file.
+     *
+     * @param file
+     */
+    private void saveContactDataCSV(File file) {
+        try (CSVWriter writer = new CSVWriter(new FileWriter(file))) {
+
+            String[] columns = {"Name", "Mobile", "Work", "Home", "Additional"};
+            writer.writeNext(columns);
+
+            for (Contact contact : contactsData) {
+                String[] contactEntry = new String[5];
+                contactEntry[0] = contact.getName();
+                contactEntry[1] = contact.getMobile();
+                contactEntry[2] = contact.getWork();
+                contactEntry[3] = contact.getHome();
+                contactEntry[4] = contact.getAdditional();
+
+                writer.writeNext(contactEntry, true);
+            }
+
+            // save the filepath to the registry
+            setContactFilePath(file);
+
+        } catch (Exception e) {
+            // catches any exception
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Could not save data");
+            alert.setContentText("Could not save data to file:\n" + file.getPath());
+
+            alert.showAndWait();
+        }
+
+    }
+
+
 }
