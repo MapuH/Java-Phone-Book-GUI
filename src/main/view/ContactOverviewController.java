@@ -8,8 +8,6 @@ import main.PhoneBook;
 import main.model.Contact;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class ContactOverviewController {
@@ -37,7 +35,7 @@ public class ContactOverviewController {
     private Label instructionLabel;
 
     private PhoneBook phoneBook;
-    private String[] validExtensions = {"*.csv", "*.xml"};
+    private String[] validExtensions = {"*.csv", "*.json", "*.xml"};
 
     public ContactOverviewController() {
     }
@@ -168,7 +166,7 @@ public class ContactOverviewController {
         FileChooser fileChooser = new FileChooser();
 
         // set extension filter
-        FileChooser.ExtensionFilter exFilter = new FileChooser.ExtensionFilter("Supported files (*.csv, *.xml)", validExtensions);
+        FileChooser.ExtensionFilter exFilter = new FileChooser.ExtensionFilter("Supported files (*.csv, *.json, *.xml)", validExtensions);
         fileChooser.getExtensionFilters().add(exFilter);
 
         // show open file dialog
@@ -199,7 +197,7 @@ public class ContactOverviewController {
         FileChooser fileChooser = new FileChooser();
 
         // set extension filter
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Supported files (*.csv, *.xml)", validExtensions);
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Supported files (*.csv, *.json, *.xml)", validExtensions);
         fileChooser.getExtensionFilters().add(extFilter);
 
         // show save file dialog

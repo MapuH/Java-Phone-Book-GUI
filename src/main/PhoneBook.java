@@ -1,5 +1,8 @@
 package main;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import javafx.scene.control.Alert;
@@ -7,10 +10,13 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import main.model.Contact;
+import main.model.ContactJSON;
 import main.model.ContactListWrapperXML;
 import main.view.ContactEditDialogController;
 import main.view.ContactOverviewController;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -168,6 +174,8 @@ public class PhoneBook extends Application {
                 loadContactDataXML(file);
             } else if (file.getName().endsWith(".csv")) {
                 loadContactDataCSV(file);
+            } else if (file.getName().endsWith(".json")) {
+                loadContactDataJSON(file);
             }
         }
     }
@@ -182,6 +190,8 @@ public class PhoneBook extends Application {
             saveContactDataXML(file);
         } else if (file.getName().endsWith(".csv")) {
             saveContactDataCSV(file);
+        } else if (file.getName().endsWith(".json")) {
+            saveContactDataJSON(file);
         }
 
     }
@@ -322,6 +332,74 @@ public class PhoneBook extends Application {
         }
 
     }
+
+    /**
+     * Loads contact data from the specified CSV file. The current contact data will
+     * be replaced.
+     *
+     * @param file
+     */
+    private void loadContactDataJSON(File file) {
+        try (FileReader reader = new FileReader(file)) {
+
+            Gson gson = new Gson();
+            contactsData.clear();
+
+            List<ContactJSON> contactEntries = gson.fromJson(reader, new TypeToken<List<ContactJSON>>(){}.getType());
+            for (ContactJSON entry : contactEntries) {
+                Contact contact = new Contact(entry.getName(), entry.getMobile(), entry.getWork(),
+                        entry.getWork(), entry.getAdditional());
+                contactsData.add(contact);
+            }
+
+            // save filepath to the registry
+            setContactFilePath(file);
+
+        } catch (Exception e) {
+            // catches any exception
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Could not load data");
+            alert.setContentText("Could not load data from file:\n" + file.getPath());
+
+            alert.showAndWait();
+        }
+    }
+
+
+    /**
+     * Saves the current contact data to the specified JSON file.
+     *
+     * @param file
+     */
+    private void saveContactDataJSON(File file) {
+        try (FileWriter writer = new FileWriter(file)) {
+
+            List<ContactJSON> contactEntries = new ArrayList<>();
+            for (Contact contact : contactsData) {
+                ContactJSON entry = new ContactJSON(contact.getName(), contact.getMobile(), contact.getWork(),
+                        contact.getHome(), contact.getAdditional());
+                contactEntries.add(entry);
+            }
+
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(contactEntries, writer);
+
+            // save the filepath to the registry
+            setContactFilePath(file);
+
+        } catch (Exception e) {
+            // catches any exception
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Could not save data");
+            alert.setContentText("Could not save data to file:\n" + file.getPath());
+
+            alert.showAndWait();
+        }
+    }
+
 
 
 }
