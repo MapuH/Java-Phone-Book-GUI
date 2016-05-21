@@ -192,6 +192,16 @@ public class PhoneBook extends Application {
             saveContactDataCSV(file);
         } else if (file.getName().endsWith(".json")) {
             saveContactDataJSON(file);
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Unsupported File Type");
+            alert.setHeaderText(null);
+            alert.setContentText("You are trying to save a file without extension or of unsupported type. " +
+                    "Data will be saved as *.xml");
+            alert.showAndWait();
+
+            file = new File(file.getPath() + ".xml");
+            saveContactDataXML(file);
         }
 
     }
@@ -348,7 +358,7 @@ public class PhoneBook extends Application {
             List<ContactJSON> contactEntries = gson.fromJson(reader, new TypeToken<List<ContactJSON>>(){}.getType());
             for (ContactJSON entry : contactEntries) {
                 Contact contact = new Contact(entry.getName(), entry.getMobile(), entry.getWork(),
-                        entry.getWork(), entry.getAdditional());
+                        entry.getHome(), entry.getAdditional());
                 contactsData.add(contact);
             }
 
