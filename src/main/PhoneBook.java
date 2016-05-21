@@ -35,12 +35,21 @@ public class PhoneBook extends Application {
     private Stage primaryStage;
     private VBox overview;
     private ObservableList<Contact> contactsData = FXCollections.observableArrayList();
+    private boolean wasSaved = true;
 
     public PhoneBook() {
     }
 
     public ObservableList<Contact> getContactsData() {
         return contactsData;
+    }
+
+    public boolean getWasSaved() {
+        return wasSaved;
+    }
+
+    public void setWasSaved(boolean wasSaved) {
+        this.wasSaved = wasSaved;
     }
 
     public Stage getPrimaryStage() {
@@ -258,6 +267,8 @@ public class PhoneBook extends Application {
             // save the filepath to the registry
             setContactFilePath(file);
 
+            setWasSaved(true);
+
         } catch (Exception e) {
             // catches any exception
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -331,6 +342,8 @@ public class PhoneBook extends Application {
             // save the filepath to the registry
             setContactFilePath(file);
 
+            setWasSaved(true);
+
         } catch (Exception e) {
             // catches any exception
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -398,6 +411,8 @@ public class PhoneBook extends Application {
 
             // save the filepath to the registry
             setContactFilePath(file);
+
+            setWasSaved(true);
 
         } catch (Exception e) {
             // catches any exception

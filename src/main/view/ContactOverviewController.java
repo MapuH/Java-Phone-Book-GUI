@@ -89,6 +89,7 @@ public class ContactOverviewController {
         boolean clickedOK = phoneBook.showContactEditDialog(tempContact);
         if (clickedOK) {
             phoneBook.getContactsData().add(tempContact);
+            phoneBook.setWasSaved(false);
             showContactDetails(tempContact);
         }
     }
@@ -104,6 +105,7 @@ public class ContactOverviewController {
             boolean clickedOK = phoneBook.showContactEditDialog(selectedContact);
             if (clickedOK) {
                 showContactDetails(selectedContact);
+                phoneBook.setWasSaved(false);
             }
 
         } else {
@@ -135,6 +137,7 @@ public class ContactOverviewController {
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 contactsTable.getItems().remove(selectedIndex);
+                phoneBook.setWasSaved(false);
             }
 
         } else {
@@ -154,8 +157,27 @@ public class ContactOverviewController {
      */
     @FXML
     private void handleNew() {
+        // check if current file was saved before creating a new phone book
+        if (!phoneBook.getWasSaved()) {
+            File file = phoneBook.getContactFilePath();
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Save Changes First?");
+            alert.setHeaderText("Phone book has been updated");
+            if (file != null) {
+                alert.setContentText("Save changes to " + file.getName() + " before proceeding?");
+            } else {
+                alert.setContentText("Would you like to save current phone book?");
+            }
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                handleSave();
+            }
+        }
+
+        // continue with creating a new phone book
         phoneBook.getContactsData().clear();
         phoneBook.setContactFilePath(null);
+        phoneBook.setWasSaved(true);
     }
 
     /**
@@ -163,7 +185,26 @@ public class ContactOverviewController {
      */
     @FXML
     private void handleOpen() {
+        // check if current file was saved before opening a new phone book
+        if (!phoneBook.getWasSaved()) {
+            File file = phoneBook.getContactFilePath();
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Save Changes First?");
+            alert.setHeaderText("Phone book has been updated");
+            if (file != null) {
+                alert.setContentText("Save changes to " + file.getName() + " before proceeding?");
+            } else {
+                alert.setContentText("Would you like to save current phone book?");
+            }
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                handleSave();
+            }
+        }
+
+        // continue with opening a new file
         FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Phone Book File");
 
         // set extension filter
         FileChooser.ExtensionFilter exFilter = new FileChooser.ExtensionFilter("Supported files (*.csv, *.json, *.xml)", validExtensions);
@@ -173,6 +214,7 @@ public class ContactOverviewController {
         File file = fileChooser.showOpenDialog(phoneBook.getPrimaryStage());
 
         phoneBook.loadContactFile(file);
+        phoneBook.setWasSaved(true);
     }
 
     /**
@@ -195,6 +237,7 @@ public class ContactOverviewController {
     @FXML
     private void handleSaveAs() {
         FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Phone Book File");
 
         // set extension filter
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Supported files (*.csv, *.json, *.xml)", validExtensions);
@@ -226,6 +269,24 @@ public class ContactOverviewController {
      */
     @FXML
     private void handleQuit() {
+        // check if current file was saved before quitting
+        if (!phoneBook.getWasSaved()) {
+            File file = phoneBook.getContactFilePath();
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Save Changes First?");
+            alert.setHeaderText("Phone book has been updated");
+            if (file != null) {
+                alert.setContentText("Save changes to " + file.getName() + " before proceeding?");
+            } else {
+                alert.setContentText("Would you like to save current phone book?");
+            }
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                handleSave();
+            }
+        }
+
+        // terminate program
         System.exit(0);
     }
 
