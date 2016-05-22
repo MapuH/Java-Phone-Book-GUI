@@ -1,5 +1,7 @@
 package main.view;
 
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -13,6 +15,8 @@ import java.util.Optional;
 public class ContactOverviewController {
 
     // left hand side
+    @FXML
+    private TextField filterField;
     @FXML
     private TableView<Contact> contactsTable;
     @FXML
@@ -61,7 +65,29 @@ public class ContactOverviewController {
      */
     public void setPhoneBook(PhoneBook phoneBook) {
         this.phoneBook = phoneBook;
-        contactsTable.setItems(phoneBook.getContactsData());
+
+        FilteredList<Contact> filteredContacts = new FilteredList<>(phoneBook.getContactsData(), p -> true);
+        filterField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredContacts.setPredicate(contact -> {
+                // if filter is empty display all contacts
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;
+                }
+
+                // compare names with filter text
+                String filter = newValue.toLowerCase();
+                if (contact.getName().toLowerCase().contains(filter)) {
+                    return true;
+                }
+
+                return false;
+            });
+        });
+
+        SortedList<Contact> sortedContacts = new SortedList<>(filteredContacts);
+        sortedContacts.comparatorProperty().bind(contactsTable.comparatorProperty());
+
+        contactsTable.setItems(sortedContacts);
     }
 
     private void showContactDetails(Contact contact) {
