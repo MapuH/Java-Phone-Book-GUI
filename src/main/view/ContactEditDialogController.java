@@ -3,6 +3,7 @@ package main.view;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import main.model.Contact;
 
@@ -38,6 +39,16 @@ public class ContactEditDialogController {
      */
     public void setDialogStage(Stage dialogStage) {
         this.dialogStage = dialogStage;
+
+        // listener for pressing ESCAPE/ENTER
+        dialogStage.getScene().setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ESCAPE) {
+                handleCancel();
+            } else if (keyEvent.getCode() == KeyCode.ENTER) {
+                handleOK();
+            }
+        });
+
     }
 
     /**

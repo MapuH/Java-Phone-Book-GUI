@@ -35,7 +35,7 @@ public class PhoneBook extends Application {
     private Stage primaryStage;
     private VBox overview;
     private ObservableList<Contact> contactsData = FXCollections.observableArrayList();
-    private boolean wasSaved = true;
+    private boolean hasChanged = false;
 
     public PhoneBook() {
     }
@@ -44,12 +44,15 @@ public class PhoneBook extends Application {
         return contactsData;
     }
 
-    public boolean getWasSaved() {
-        return wasSaved;
+    public boolean getHasChanged() {
+        return hasChanged;
     }
 
-    public void setWasSaved(boolean wasSaved) {
-        this.wasSaved = wasSaved;
+    public void setHasChanged(boolean hasChanged) {
+        this.hasChanged = hasChanged;
+        if (hasChanged && !this.primaryStage.getTitle().endsWith("*")) {
+            this.primaryStage.setTitle(this.primaryStage.getTitle() + "*");
+        }
     }
 
     public Stage getPrimaryStage() {
@@ -168,7 +171,7 @@ public class PhoneBook extends Application {
             prefs.remove("filePath");
 
             // update the title
-            primaryStage.setTitle("PhoneBook");
+            primaryStage.setTitle("PhoneBook - New Book");
         }
     }
 
@@ -267,7 +270,7 @@ public class PhoneBook extends Application {
             // save the filepath to the registry
             setContactFilePath(file);
 
-            setWasSaved(true);
+            setHasChanged(false);
 
         } catch (Exception e) {
             // catches any exception
@@ -342,7 +345,7 @@ public class PhoneBook extends Application {
             // save the filepath to the registry
             setContactFilePath(file);
 
-            setWasSaved(true);
+            setHasChanged(false);
 
         } catch (Exception e) {
             // catches any exception
@@ -412,7 +415,7 @@ public class PhoneBook extends Application {
             // save the filepath to the registry
             setContactFilePath(file);
 
-            setWasSaved(true);
+            setHasChanged(false);
 
         } catch (Exception e) {
             // catches any exception
@@ -424,7 +427,6 @@ public class PhoneBook extends Application {
             alert.showAndWait();
         }
     }
-
 
 
 }

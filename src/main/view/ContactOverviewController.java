@@ -39,6 +39,7 @@ public class ContactOverviewController {
     private Label instructionLabel;
 
     private PhoneBook phoneBook;
+    private SortedList<Contact> sortedContacts;
     private String[] validExtensions = {"*.csv", "*.json", "*.xml"};
 
     public ContactOverviewController() {
@@ -66,6 +67,10 @@ public class ContactOverviewController {
     public void setPhoneBook(PhoneBook phoneBook) {
         this.phoneBook = phoneBook;
 
+        // refers to handleQuit() if application is closed
+        phoneBook.getPrimaryStage().setOnCloseRequest(closeEvent -> handleQuit());
+
+        // load contacts in the table
         FilteredList<Contact> filteredContacts = new FilteredList<>(phoneBook.getContactsData(), p -> true);
         filterField.textProperty().addListener((observable, oldValue, newValue) -> {
             filteredContacts.setPredicate(contact -> {
@@ -84,8 +89,8 @@ public class ContactOverviewController {
             });
         });
 
-        SortedList<Contact> sortedContacts = new SortedList<>(filteredContacts);
-        sortedContacts.comparatorProperty().bind(contactsTable.comparatorProperty());
+        this.sortedContacts = new SortedList<>(filteredContacts);
+        this.sortedContacts.comparatorProperty().bind(contactsTable.comparatorProperty());
 
         contactsTable.setItems(sortedContacts);
     }
@@ -115,7 +120,7 @@ public class ContactOverviewController {
         boolean clickedOK = phoneBook.showContactEditDialog(tempContact);
         if (clickedOK) {
             phoneBook.getContactsData().add(tempContact);
-            phoneBook.setWasSaved(false);
+            phoneBook.setHasChanged(true);
             showContactDetails(tempContact);
         }
     }
@@ -131,7 +136,7 @@ public class ContactOverviewController {
             boolean clickedOK = phoneBook.showContactEditDialog(selectedContact);
             if (clickedOK) {
                 showContactDetails(selectedContact);
-                phoneBook.setWasSaved(false);
+                phoneBook.setHasChanged(true);
             }
 
         } else {
@@ -154,16 +159,18 @@ public class ContactOverviewController {
     private void handleDeleteContact() {
         int selectedIndex = contactsTable.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
+            int sourceIndex = this.sortedContacts.getSourceIndexFor(phoneBook.getContactsData(), selectedIndex);
+
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.initOwner(phoneBook.getPrimaryStage());
             alert.setTitle("Delete Contact");
             alert.setHeaderText("Contact will be deleted");
-            alert.setContentText("Are you sure?");
+            alert.setContentText("Delete "+ sortedContacts.get(selectedIndex).getName() +", are you sure?");
 
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                contactsTable.getItems().remove(selectedIndex);
-                phoneBook.setWasSaved(false);
+                phoneBook.getContactsData().remove(sourceIndex);
+                phoneBook.setHasChanged(true);
             }
 
         } else {
@@ -184,7 +191,7 @@ public class ContactOverviewController {
     @FXML
     private void handleNew() {
         // check if current file was saved before creating a new phone book
-        if (!phoneBook.getWasSaved()) {
+        if (phoneBook.getHasChanged()) {
             File file = phoneBook.getContactFilePath();
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Save Changes First?");
@@ -203,7 +210,7 @@ public class ContactOverviewController {
         // continue with creating a new phone book
         phoneBook.getContactsData().clear();
         phoneBook.setContactFilePath(null);
-        phoneBook.setWasSaved(true);
+        phoneBook.setHasChanged(false);
     }
 
     /**
@@ -212,7 +219,7 @@ public class ContactOverviewController {
     @FXML
     private void handleOpen() {
         // check if current file was saved before opening a new phone book
-        if (!phoneBook.getWasSaved()) {
+        if (phoneBook.getHasChanged()) {
             File file = phoneBook.getContactFilePath();
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Save Changes First?");
@@ -240,7 +247,7 @@ public class ContactOverviewController {
         File file = fileChooser.showOpenDialog(phoneBook.getPrimaryStage());
 
         phoneBook.loadContactFile(file);
-        phoneBook.setWasSaved(true);
+        phoneBook.setHasChanged(false);
     }
 
     /**
@@ -283,8 +290,8 @@ public class ContactOverviewController {
     @FXML
     private void handleAbout() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("PhoneBook");
-        alert.setHeaderText("About");
+        alert.setTitle("About");
+        alert.setHeaderText("PhoneBook v0.1");
         alert.setContentText("Author: Marin Marinov");
 
         alert.showAndWait();
@@ -296,7 +303,7 @@ public class ContactOverviewController {
     @FXML
     private void handleQuit() {
         // check if current file was saved before quitting
-        if (!phoneBook.getWasSaved()) {
+        if (phoneBook.getHasChanged()) {
             File file = phoneBook.getContactFilePath();
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Save Changes First?");

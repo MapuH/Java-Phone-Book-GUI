@@ -24,21 +24,21 @@
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
-            <MenuItem mnemonicParsing="false" onAction="#handleNew" text="New" />
-            <MenuItem mnemonicParsing="false" onAction="#handleOpen" text="Open…" />
+            <MenuItem mnemonicParsing="false" onAction="#handleNew" text="New" accelerator="Shortcut+N" />
+            <MenuItem mnemonicParsing="false" onAction="#handleOpen" text="Open…" accelerator="Shortcut+O" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" onAction="#handleSave" text="Save" />
+            <MenuItem mnemonicParsing="false" onAction="#handleSave" text="Save" accelerator="Shortcut+S" />
             <MenuItem mnemonicParsing="false" onAction="#handleSaveAs" text="Save As…" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" onAction="#handleQuit" text="Quit" />
+            <MenuItem mnemonicParsing="false" onAction="#handleQuit" text="Quit" accelerator="Shortcut+Q" />
           </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Contacts">
           <items>
-            <MenuItem mnemonicParsing="false" onAction="#handleNewContact" text="Add contact..." />
-            <MenuItem mnemonicParsing="false" onAction="#handleEditContact" text="Edit contact..." />
+            <MenuItem mnemonicParsing="false" onAction="#handleNewContact" text="Add contact..." accelerator="Shortcut+A" />
+            <MenuItem mnemonicParsing="false" onAction="#handleEditContact" text="Edit contact..." accelerator="Shortcut+E" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" onAction="#handleDeleteContact" text="Delete contact" />
+            <MenuItem mnemonicParsing="false" onAction="#handleDeleteContact" text="Delete contact" accelerator="Shortcut+D" />
           </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
