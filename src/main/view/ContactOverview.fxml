@@ -35,7 +35,7 @@
         </Menu>
         <Menu mnemonicParsing="false" text="Contacts">
           <items>
-            <MenuItem mnemonicParsing="false" onAction="#handleNewContact" text="Add contact..." accelerator="Shortcut+A" />
+            <MenuItem mnemonicParsing="false" onAction="#handleNewContact" text="Add contact..." accelerator="Shortcut+B" />
             <MenuItem mnemonicParsing="false" onAction="#handleEditContact" text="Edit contact..." accelerator="Shortcut+E" />
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" onAction="#handleDeleteContact" text="Delete contact" accelerator="Shortcut+D" />

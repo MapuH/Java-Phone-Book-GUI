@@ -1,0 +1,11 @@
+#!/bin/bash
+echo Creating output dir..
+mkdir bin
+echo Compiling code...
+javac -d bin -cp ".:./lib/gson-2.6.2.jar:./lib/opencsv-3.7.jar:./src:./resources" src/main/PhoneBook.java
+echo Copying resources...
+cp src/main/view/*.fxml bin/main/view
+echo Running PhoneBook v0.1 app...
+java -cp ".:./lib/gson-2.6.2.jar:./lib/opencsv-3.7.jar:./bin:./resources" main.PhoneBook
+echo Delete temp files and quit
+rm -r bin
